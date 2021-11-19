@@ -59,15 +59,11 @@
 # MAGIC %md
 # MAGIC ## Enter your registration ID
 # MAGIC 
-# MAGIC You received a registration ID in an email when you enrolled into {{#azure}}Azure{{/azure}} Databricks Core Technical Training Capstone. The title of the email that contains your registration ID is **Databricks Training Registration Success - {{#azure}}Azure{{/azure}} Databricks Core Technical Training Capstone**. 
+# MAGIC You received a registration ID in an email when you enrolled into Databricks Core Technical Training Capstone. The title of the email that contains your registration ID is **Databricks Training Registration Success - Databricks Core Technical Training Capstone**. 
 # MAGIC 
 # MAGIC The email with the registration ID looks like this:
 # MAGIC 
-# MAGIC {{#amazon}}
 # MAGIC <img src="https://files.training.databricks.com/images/core-capstone/reg_aws.png" width=60%/>
-# MAGIC {{/amazon}} {{#azure}}
-# MAGIC <img src="https://files.training.databricks.com/images/core-capstone/reg_adb.png" width=60%/>
-# MAGIC {{/azure}}
 # MAGIC 
 # MAGIC If you're unable to find your registration code in your email, you can also find it in your inbox in the [Databricks Academy](https://academy.databricks.com/) website. 
 # MAGIC 
@@ -79,15 +75,11 @@
 # MAGIC 
 # MAGIC <img src="https://s3-us-west-2.amazonaws.com/files.training.databricks.com/images/common/academy_inbox.png" width=60%/>
 # MAGIC 
-# MAGIC Find the message titled **Databricks Training Registration Success - {{#azure}}Azure{{/azure}} Databricks Core Technical Training Capstone**
+# MAGIC Find the message titled **Databricks Training Registration Success - Databricks Core Technical Training Capstone**
 # MAGIC 
 # MAGIC The registration ID is in the body of the message.
 # MAGIC 
-# MAGIC {{#amazon}}
 # MAGIC <img src="https://files.training.databricks.com/images/core-capstone/reg_aws_academy.png" width=60%/>
-# MAGIC {{/amazon}} {{#azure}}
-# MAGIC <img src="https://files.training.databricks.com/images/core-capstone/reg_adb_academy.png" width=60%/>
-# MAGIC {{/azure}}
 # MAGIC 
 # MAGIC If you can't find the registration code using either method above, please send an email to [training-enb@databricks.com](mailto:training-enb@databricks.com). 
 # MAGIC 
