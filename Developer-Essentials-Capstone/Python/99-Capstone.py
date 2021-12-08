@@ -15,9 +15,7 @@
 # MAGIC 
 # MAGIC Upon successful completion of the capstone, you will receive a certificate of accreditation. Successful completion will be tracked alongside your partner profile, and will help our team identify individuals qualified for additional advanced training opportunities.
 # MAGIC 
-# MAGIC <img src="https://files.training.databricks.com/images/icon_warn_24.png"/> In order for our tracking system to successfully log your completion, you will need to make sure you successfully run all 4 `realityCheck` functions in a single session.
-# MAGIC 
-# MAGIC Certificates should arrive within a week of successful completion. **All tests must be passed successfully for certification**. If you have questions about your completion status, please email [training-enb@databricks.com](mailto:training-enb@databricks.com).
+# MAGIC <img src="https://files.training.databricks.com/images/icon_warn_24.png"/> In order for our tracking system to successfully log your completion, you will need to make sure you successfully run all 5 `realityCheck` functions in a single session.
 
 # COMMAND ----------
 
@@ -42,11 +40,12 @@
 # MAGIC * Visualize the results directly in the notebook
 # MAGIC 
 # MAGIC ## Testing your Code
-# MAGIC There are 4 test functions imported into this notebook:
-# MAGIC * realityCheckBronze
-# MAGIC * realityCheckStatic
-# MAGIC * realityCheckSilver
-# MAGIC * realityCheckGold
+# MAGIC There are 5 test functions imported into this notebook:
+# MAGIC * `realityCheckBronze(..)`
+# MAGIC * `realityCheckStatic(..)`
+# MAGIC * `realityCheckSilver(..)`
+# MAGIC * `realityCheckGold(..)`
+# MAGIC * `realityCheckFinal()`
 # MAGIC 
 # MAGIC To run automated tests against your code, you will call a `realityCheck` function and pass the function you write as an argument. The testing suite will call your functions against a different dataset so it's important that you don't change the parameters in the function definitions. 
 # MAGIC 
@@ -57,62 +56,15 @@
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## Enter your registration ID
-# MAGIC 
-# MAGIC You received a registration ID in an email when you enrolled into Databricks Core Technical Training Capstone. The title of the email that contains your registration ID is **Databricks Training Registration Success - Databricks Core Technical Training Capstone**. 
-# MAGIC 
-# MAGIC The email with the registration ID looks like this:
-# MAGIC 
-# MAGIC <img src="https://files.training.databricks.com/images/core-capstone/reg_aws.png" width=60%/>
-# MAGIC 
-# MAGIC If you're unable to find your registration code in your email, you can also find it in your inbox in the [Databricks Academy](https://academy.databricks.com/) website. 
-# MAGIC 
-# MAGIC After logging in, click `MY ACCOUNT` in the top right:
-# MAGIC 
-# MAGIC <img src="https://s3-us-west-2.amazonaws.com/files.training.databricks.com/images/common/academy_home.png" width=60%/>
-# MAGIC 
-# MAGIC Next, click on `Inbox` in the header:
-# MAGIC 
-# MAGIC <img src="https://s3-us-west-2.amazonaws.com/files.training.databricks.com/images/common/academy_inbox.png" width=60%/>
-# MAGIC 
-# MAGIC Find the message titled **Databricks Training Registration Success - Databricks Core Technical Training Capstone**
-# MAGIC 
-# MAGIC The registration ID is in the body of the message.
-# MAGIC 
-# MAGIC <img src="https://files.training.databricks.com/images/core-capstone/reg_aws_academy.png" width=60%/>
-# MAGIC 
-# MAGIC If you can't find the registration code using either method above, please send an email to [training-enb@databricks.com](mailto:training-enb@databricks.com). 
-# MAGIC 
-# MAGIC Enter your registration ID in the cell below as a string. This is a **critical** step to getting your accredidation for this capstone. 
-
-# COMMAND ----------
-
-# TODO
-
-registration_id = FILL_IN
-
-# COMMAND ----------
-
-# MAGIC %md
 # MAGIC ## Getting Started
 # MAGIC 
-# MAGIC Run the following cell to configure our environment.
-
-# COMMAND ----------
-
-# MAGIC %run "./Includes/Capstone-Setup"
-
-# COMMAND ----------
-
-# MAGIC %md
+# MAGIC Run the following cell to configure our environment and install our datasets into your workspace.
 # MAGIC 
-# MAGIC ### Configure shuffle partitions
-# MAGIC 
-# MAGIC In order to speed up shuffle operations required by the solutions, let's update the number of shuffle partitions to 8 partitions. 
+# MAGIC <img src="https://files.training.databricks.com/images/icon_note_24.png"/> You can force a reinstall (download) of the source datasets by setting reinstall to "false" in the following cell.
 
 # COMMAND ----------
 
-sqlContext.setConf("spark.sql.shuffle.partitions", "8")
+# MAGIC %run "./Includes/Capstone-Setup" $reinstall="false"
 
 # COMMAND ----------
 
@@ -126,29 +78,43 @@ sqlContext.setConf("spark.sql.shuffle.partitions", "8")
 
 # COMMAND ----------
 
-inputPath = userhome + "/source"
+lookupSourcePath = f"{working_dir}/lookup_data"
+eventSourcePath = f"{working_dir}/event_source"
 
-basePath = userhome + "/capstone"
-outputPathBronze = basePath + "/gaming/bronze"
-outputPathSilver = basePath + "/gaming/silver"
-outputPathGold   = basePath + "/gaming/gold"
+print("Source Paths:")
+print(lookupSourcePath)
+print(eventSourcePath)
 
-dbutils.fs.rm(basePath, True)
+outputPath = f"{working_dir}/output"
+dbutils.fs.rm(outputPath, True)
+
+outputPathBronze = f"{outputPath}/bronze"
+outputPathSilver = f"{outputPath}/silver"
+outputPathGold   = f"{outputPath}/gold"
+
+print("\nOutput Paths:")
+print(outputPathBronze)
+print(outputPathSilver)
+print(outputPathGold)
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC 
-# MAGIC ### SQL Table Setup
+# MAGIC ### SQL Database Setup
 # MAGIC 
-# MAGIC The follow cell drops a table that we'll be creating later in the notebook.
+# MAGIC We can avoid conflicts with other users in this workspace by using a personal database.
 # MAGIC 
-# MAGIC (Dropping the table prevents challenges involved if the notebook is run more than once.)
+# MAGIC The follow cell drops that database, recreates it, and sets it as the default DB for future opreations.
+# MAGIC 
+# MAGIC Dropping the database also serves to "reset" the project much in the same way we deleted the output directory in the previous cell.
 
 # COMMAND ----------
 
-# MAGIC %sql
-# MAGIC DROP TABLE IF EXISTS mobile_events_delta_gold;
+print(f"Setting up the database {user_db}")
+spark.sql(f"DROP DATABASE IF EXISTS {user_db} CASCADE") # Drop the existing database
+spark.sql(f"CREATE DATABASE {user_db}")                 # Recreate the database
+spark.sql(f"USE {user_db}")                             # Use the database for all default table operations
 
 # COMMAND ----------
 
@@ -183,8 +149,8 @@ gamingEventDF = (spark
   .readStream
   .schema(eventSchema) 
   .option('streamName','mobilestreaming_demo') 
-  .option("maxFilesPerTrigger", 1)                # treat each file as Trigger event
-  .json(inputPath) 
+  .option("maxFilesPerTrigger", 1) # treat each file as Trigger event
+  .json(eventSourcePath)           # The path to our JSON events (defined above)
 )
 
 # COMMAND ----------
@@ -214,10 +180,10 @@ def writeToBronze(sourceDataframe, bronzePath, streamName):
             
     FILL_IN
             
-    .option("checkpointLocation", bronzePath + "/_checkpoint")
+    .option("checkpointLocation", f"{bronzePath}_checkpoint")
     .queryName(streamName)
     .outputMode("append") 
-    .start(bronzePath)
+    .start(outputPathBronze)
   )
 
 # COMMAND ----------
@@ -253,12 +219,12 @@ realityCheckBronze(writeToBronze)
 # MAGIC 
 # MAGIC * Register a static lookup table to associate `deviceId` with `deviceType` (android or ios).
 # MAGIC * While we refer to this as a lookup table, here we'll define it as a DataFrame. This will make it easier for us to define a join on our streaming data in the next step.
-# MAGIC * Create `deviceLookupDF` by calling your loadStaticData function, passing `/mnt/training/gaming_data/dimensionData` as the path.
+# MAGIC * Create `deviceLookupDF` by calling your loadStaticData function, passing `lookupSourcePath` as the source path.
 
 # COMMAND ----------
 
 # TODO
-lookupPath = "/mnt/training/gaming_data/dimensionData"
+print(lookupSourcePath)
 
 def loadStaticData(path):
   return FILL_IN
@@ -456,18 +422,11 @@ for s in spark.streams.active:
 # COMMAND ----------
 
 # MAGIC %md 
-# MAGIC # Double Check Your Submission
+# MAGIC # Submit Your Project
 # MAGIC 
-# MAGIC 
-# MAGIC 1. Congrats for getting to the end of the capstone! 
-# MAGIC 1. In order for the capstone to be properly evaluated, please **re-run the entire notebook and ensure that all reality checks pass**. 
-# MAGIC 1. Once you have completed this step, you should receive an email with your badge within 2 weeks of competing the notebook.
-# MAGIC 
-# MAGIC ## Congratulations! You're all done!
-# MAGIC 
-# MAGIC You will receive your Databricks Developer Essential Badge within 2 weeks of successful completion of this capstone.  You will receive a notice about your digital badge via email and it can be downloaded through Accredible. Databricks has created a digital badge available in an online format so that you can easily retrieve and share the details of your achievement.
-# MAGIC 
-# MAGIC <img src="https://files.training.databricks.com/images/icon_warn_24.png"/> In order for our tracking system to successfully log your completion, you will need to make sure you successfully run all 4 `realityCheck` functions in a single session. **Seriously, re-run your notebook! All tests must be passed successfully for certification**. If you have questions about your completion status, please submit a ticket [here](https://help.databricks.com/s/contact-us?ReqType=training) with the subject "Core Capstone". Please allow us 3-5 business days to respond. 
+# MAGIC 0. Congrats for getting to the end of the capstone! 
+# MAGIC 0. In order for the capstone to be properly evaluated ensure that this last reality check indicates that all four stages passed.
+# MAGIC 0. If all four stages pass, your capstone project will be submitted for automatic processing.
 
 # COMMAND ----------
 

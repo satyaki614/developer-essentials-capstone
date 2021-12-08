@@ -10,8 +10,8 @@
 # MAGIC %md # Project Information
 # MAGIC 
 # MAGIC * Name: **Developer Essentials Capstone**
-# MAGIC * Version:  **3.1.4**
-# MAGIC * Built On: **Nov 19, 2021 at 21:33:15 UTC**
+# MAGIC * Version:  **3.2.0**
+# MAGIC * Built On: **Dec 8, 2021 at 23:25:03 UTC**
 
 # COMMAND ----------
 
